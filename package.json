@@ -1,0 +1,25 @@
+{
+  "name": "homebridge-hdmi-switch",
+  "version": "1.0.0",
+  "description": "",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "homebridge": ">=1.0.0"
+  },
+  "keywords": [
+    "homebridge-plugin"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "10.17.19",
+    "typescript": "^3.8.3",
+    "homebridge": "^1.0.4"
+  },
+  "dependencies": {
+    "serial-hdmi-switch": "^1.0.2"
+  }
+}

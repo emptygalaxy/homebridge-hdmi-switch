@@ -1,0 +1,32 @@
+{
+  "pluginAlias": "HDMISwitch",
+  "pluginType": "accessory",
+  "singular": false,
+  "schema": {
+    "type": "object",
+    "properties": {
+      "name": {
+        "title": "Name",
+        "type": "string",
+        "required": true
+      },
+      "manufacturer": {
+        "title": "Manufacturer",
+        "type": "string",
+        "required": false
+      },
+      "path": {
+        "title": "Port",
+        "type": "string",
+        "required": true
+      },
+      "baudRate": {
+        "title": "Baud Rate",
+        "type": "integer",
+        "required": false
+      }
+    }
+  },
+  "form": null,
+  "display": null
+}
