@@ -1,7 +1,7 @@
 {
   "name": "homebridge-hdmi-switch",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.1.0",
+  "description": "HDMI Switch control using RS232",
   "main": "dist/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -12,7 +12,7 @@
   "keywords": [
     "homebridge-plugin"
   ],
-  "author": "",
+  "author": "Nick Timman",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "10.17.19",
@@ -21,5 +21,13 @@
   },
   "dependencies": {
     "serial-hdmi-switch": "^1.0.2"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/emptygalaxy/homebridge-hdmi-switch.git"
+  },
+  "bugs": {
+    "url": "https://github.com/emptygalaxy/homebridge-hdmi-switch/issues"
+  },
+  "homepage": "https://github.com/emptygalaxy/homebridge-hdmi-switch#readme"
 }
