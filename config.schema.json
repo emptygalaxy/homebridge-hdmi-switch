@@ -24,6 +24,11 @@
         "title": "Baud Rate",
         "type": "integer",
         "required": false
+      },
+      "inputs": {
+        "title": "Number of inputs",
+        "type": "integer",
+        "required": false
       }
     }
   },
