@@ -66,7 +66,7 @@ export class HDMISwitchAccessory implements AccessoryPlugin {
 
         this.availableServices.push(this.informationService);
 
-        this.tvService = new Service.Television(this.name, 'tvService');
+        this.tvService = new this.api.hap.Service.Television(this.name, 'tvService');
         this.tvService.getCharacteristic(this.api.hap.Characteristic.Active)
             .on(this.api.hap.CharacteristicEventTypes.GET, this.getActive.bind(this))
             .on(this.api.hap.CharacteristicEventTypes.SET, this.setActive.bind(this));
