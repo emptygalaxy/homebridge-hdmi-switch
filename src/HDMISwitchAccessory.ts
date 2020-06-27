@@ -2,7 +2,6 @@ import {
     AccessoryConfig,
     AccessoryPlugin,
     API,
-    CharacteristicEventTypes,
     CharacteristicGetCallback,
     CharacteristicSetCallback,
     CharacteristicValue,
@@ -62,25 +61,26 @@ export class HDMISwitchAccessory implements AccessoryPlugin {
 
         // setup services
         this.informationService = new this.api.hap.Service.AccessoryInformation()
-            .setCharacteristic(Characteristic.Manufacturer, this.manufacturer)
-            .setCharacteristic(Characteristic.Model, 'Custom Model');
+            .setCharacteristic(this.api.hap.Characteristic.Manufacturer, this.manufacturer)
+            .setCharacteristic(this.api.hap.Characteristic.Model, 'Custom Model');
 
         this.availableServices.push(this.informationService);
 
         this.tvService = new Service.Television(this.name, 'tvService');
-        this.tvService.getCharacteristic(Characteristic.Active)
-            .on(CharacteristicEventTypes.GET, this.getActive.bind(this))
-            .on(CharacteristicEventTypes.SET, this.setActive.bind(this));
+        this.tvService.getCharacteristic(this.api.hap.Characteristic.Active)
+            .on(this.api.hap.CharacteristicEventTypes.GET, this.getActive.bind(this))
+            .on(this.api.hap.CharacteristicEventTypes.SET, this.setActive.bind(this));
 
-        this.tvService.getCharacteristic(Characteristic.ActiveIdentifier)
-            .on(CharacteristicEventTypes.GET, this.getActiveIdentifier.bind(this))
-            .on(CharacteristicEventTypes.SET, this.setActiveIdentifier.bind(this));
+        this.tvService.getCharacteristic(this.api.hap.Characteristic.ActiveIdentifier)
+            .on(this.api.hap.CharacteristicEventTypes.GET, this.getActiveIdentifier.bind(this))
+            .on(this.api.hap.CharacteristicEventTypes.SET, this.setActiveIdentifier.bind(this));
 
-        this.tvService.setCharacteristic(Characteristic.ConfiguredName, this.name);
-        this.tvService.getCharacteristic(Characteristic.RemoteKey)
-            .on(CharacteristicEventTypes.SET, this.setRemoteKey.bind(this));
+        this.tvService.setCharacteristic(this.api.hap.Characteristic.ConfiguredName, this.name);
+        this.tvService.getCharacteristic(this.api.hap.Characteristic.RemoteKey)
+            .on(this.api.hap.CharacteristicEventTypes.SET, this.setRemoteKey.bind(this));
 
-        this.tvService.setCharacteristic(Characteristic.SleepDiscoveryMode, Characteristic.SleepDiscoveryMode.ALWAYS_DISCOVERABLE);
+        this.tvService.setCharacteristic(this.api.hap.Characteristic.SleepDiscoveryMode,
+            this.api.hap.Characteristic.SleepDiscoveryMode.ALWAYS_DISCOVERABLE);
 
         this.availableServices.push(this.tvService);
 
@@ -89,15 +89,15 @@ export class HDMISwitchAccessory implements AccessoryPlugin {
             const inputName = 'HDMI ' + i;
             const inputSource:Service = new this.api.hap.Service.InputSource(inputName, inputName);
             inputSource
-                .setCharacteristic(Characteristic.ConfiguredName, inputName)
-                .setCharacteristic(Characteristic.InputSourceType, Characteristic.InputSourceType.HDMI)
-                .setCharacteristic(Characteristic.IsConfigured, Characteristic.IsConfigured.CONFIGURED)
-                .setCharacteristic(Characteristic.CurrentVisibilityState, Characteristic.CurrentVisibilityState.SHOWN)
-                .setCharacteristic(Characteristic.Identifier, identifier)
+                .setCharacteristic(this.api.hap.Characteristic.ConfiguredName, inputName)
+                .setCharacteristic(this.api.hap.Characteristic.InputSourceType, Characteristic.InputSourceType.HDMI)
+                .setCharacteristic(this.api.hap.Characteristic.IsConfigured, Characteristic.IsConfigured.CONFIGURED)
+                .setCharacteristic(this.api.hap.Characteristic.CurrentVisibilityState, Characteristic.CurrentVisibilityState.SHOWN)
+                .setCharacteristic(this.api.hap.Characteristic.Identifier, identifier)
             ;
 
             if(i === 1) {
-                this.tvService.getCharacteristic(Characteristic.ActiveIdentifier).updateValue(identifier);
+                this.tvService.getCharacteristic(this.api.hap.Characteristic.ActiveIdentifier).updateValue(identifier);
             }
 
             this.tvService.addLinkedService(inputSource);
@@ -140,7 +140,7 @@ export class HDMISwitchAccessory implements AccessoryPlugin {
      */
     setActive(value:CharacteristicValue, callback:CharacteristicSetCallback) {
         this.log('set active:', value);
-        this.active = (value === Characteristic.Active.ACTIVE);
+        this.active = (value === this.api.hap.Characteristic.Active.ACTIVE);
 
         if(this.active) {
             this.hdmiSwitch.powerOn();
