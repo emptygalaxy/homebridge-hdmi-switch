@@ -7,7 +7,6 @@ import {
     CharacteristicValue,
     Logging,
     Service,
-    Characteristic,
 } from 'homebridge';
 
 import {HDMISwitch} from 'serial-hdmi-switch';
@@ -90,9 +89,9 @@ export class HDMISwitchAccessory implements AccessoryPlugin {
             const inputSource:Service = new this.api.hap.Service.InputSource(inputName, inputName);
             inputSource
                 .setCharacteristic(this.api.hap.Characteristic.ConfiguredName, inputName)
-                .setCharacteristic(this.api.hap.Characteristic.InputSourceType, Characteristic.InputSourceType.HDMI)
-                .setCharacteristic(this.api.hap.Characteristic.IsConfigured, Characteristic.IsConfigured.CONFIGURED)
-                .setCharacteristic(this.api.hap.Characteristic.CurrentVisibilityState, Characteristic.CurrentVisibilityState.SHOWN)
+                .setCharacteristic(this.api.hap.Characteristic.InputSourceType, this.api.hap.Characteristic.InputSourceType.HDMI)
+                .setCharacteristic(this.api.hap.Characteristic.IsConfigured, this.api.hap.Characteristic.IsConfigured.CONFIGURED)
+                .setCharacteristic(this.api.hap.Characteristic.CurrentVisibilityState, this.api.hap.Characteristic.CurrentVisibilityState.SHOWN)
                 .setCharacteristic(this.api.hap.Characteristic.Identifier, identifier)
             ;
 
