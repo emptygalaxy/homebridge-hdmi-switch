@@ -20,14 +20,14 @@
   "license": "ISC",
   "devDependencies": {
     "@types/node": "10.17.19",
-    "typescript": "^3.8.3",
-    "homebridge": "^1.0.4",
-    "@typescript-eslint/eslint-plugin": "^3.0.1",
-    "@typescript-eslint/parser": "^3.0.1",
-    "eslint": "^7.1.0",
-    "nodemon": "^2.0.4",
+    "@typescript-eslint/eslint-plugin": "^3.10.1",
+    "@typescript-eslint/parser": "^3.10.1",
+    "eslint": "^7.14.0",
+    "homebridge": "^1.1.6",
+    "nodemon": "^2.0.6",
     "rimraf": "^3.0.2",
-    "ts-node": "^8.10.1"
+    "ts-node": "^8.10.1",
+    "typescript": "^3.9.7"
   },
   "dependencies": {
     "serial-hdmi-switch": "^1.0.2"
