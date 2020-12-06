@@ -1,19 +1,17 @@
-import {HDMISwitchPlatform} from "./HDMISwitchPlatform";
+import {HDMISwitchPlatform} from './HDMISwitchPlatform';
 import {
     API,
     CharacteristicGetCallback,
     CharacteristicSetCallback,
     CharacteristicValue,
-    Logging,
     Service,
 } from 'homebridge';
-import {PlatformAccessory} from "homebridge/lib/platformAccessory";
-import {HDMISwitch} from "serial-hdmi-switch";
-import {HDMIConfig} from "./HDMIConfig";
-import {Logger} from "homebridge/lib/logger";
+import {PlatformAccessory} from 'homebridge/lib/platformAccessory';
+import {HDMISwitch} from 'serial-hdmi-switch';
+import {HDMIConfig} from './HDMIConfig';
+import {Logger} from 'homebridge/lib/logger';
 
-export class HDMISwitchPlatformAccessory
-{
+export class HDMISwitchPlatformAccessory {
     private readonly name: string;
 
     private readonly tvService: Service;
@@ -55,13 +53,16 @@ export class HDMISwitchPlatformAccessory
         this.accessory.category = this.api.hap.Categories.TV_SET_TOP_BOX;
 
         // setup services
-        this.informationService = (this.accessory.getService(this.api.hap.Service.AccessoryInformation) || this.accessory.addService(this.api.hap.Service.AccessoryInformation))
+        this.informationService = (this.accessory.getService(this.api.hap.Service.AccessoryInformation) ||
+                                    this.accessory.addService(this.api.hap.Service.AccessoryInformation));
+        this.informationService
             .setCharacteristic(this.api.hap.Characteristic.Manufacturer, this.manufacturer)
             .setCharacteristic(this.api.hap.Characteristic.Model, 'Custom Model')
         ;
         this.availableServices.push(this.informationService);
 
-        this.tvService = (this.accessory.getService(this.api.hap.Service.Television) || this.accessory.addService(this.api.hap.Service.Television));
+        this.tvService = (this.accessory.getService(this.api.hap.Service.Television) ||
+                            this.accessory.addService(this.api.hap.Service.Television));
         this.tvService.getCharacteristic(this.api.hap.Characteristic.Active)
             .on(this.api.hap.CharacteristicEventTypes.GET, this.getActive.bind(this))
             .on(this.api.hap.CharacteristicEventTypes.SET, this.setActive.bind(this));
@@ -79,22 +80,38 @@ export class HDMISwitchPlatformAccessory
 
         this.availableServices.push(this.tvService);
 
+        if(this.accessory.context.inputLabels === undefined) {
+            this.accessory.context.inputLabels = {};
+        }
+
         for(let i=1; i<=this.inputs; i++) {
             const identifier: string = i.toString();
-            const inputName: string = 'HDMI ' + i;
-            console.log(this.name, inputName);
-            // const inputSource:Service = new this.api.hap.Service.InputSource(inputName, inputName);
-            const inputSource:Service = this.accessory.getService(identifier) || this.accessory.addService(this.api.hap.Service.InputSource, identifier, inputName);
+            let inputName: string = 'HDMI ' + i;
+
+            if(this.accessory.context.inputLabels[identifier] === undefined) {
+                this.accessory.context.inputLabels[identifier] = inputName;
+            } else {
+                inputName = this.accessory.context.inputLabels[identifier];
+            }
+
+
+            this.log.info(identifier, inputName);
+
+            const inputSource:Service = this.accessory.getService(identifier) ||
+                                        this.accessory.addService(this.api.hap.Service.InputSource, identifier, inputName);
             inputSource
                 .setCharacteristic(this.api.hap.Characteristic.ConfiguredName, inputName)
-                .setCharacteristic(this.api.hap.Characteristic.InputSourceType, this.api.hap.Characteristic.InputSourceType.HDMI)
-                .setCharacteristic(this.api.hap.Characteristic.IsConfigured, this.api.hap.Characteristic.IsConfigured.CONFIGURED)
-                .setCharacteristic(this.api.hap.Characteristic.CurrentVisibilityState, this.api.hap.Characteristic.CurrentVisibilityState.SHOWN)
+                .setCharacteristic(this.api.hap.Characteristic.InputSourceType,
+                    this.api.hap.Characteristic.InputSourceType.HDMI)
+                .setCharacteristic(this.api.hap.Characteristic.IsConfigured,
+                    this.api.hap.Characteristic.IsConfigured.CONFIGURED)
+                .setCharacteristic(this.api.hap.Characteristic.CurrentVisibilityState,
+                    this.api.hap.Characteristic.CurrentVisibilityState.SHOWN)
                 .setCharacteristic(this.api.hap.Characteristic.Identifier, identifier)
             ;
 
             inputSource.getCharacteristic(this.api.hap.Characteristic.ConfiguredName)
-                .on(this.api.hap.CharacteristicEventTypes.SET, this.setConfiguredInputSourceName.bind(this));
+                .on(this.api.hap.CharacteristicEventTypes.SET, this.setConfiguredInputSourceName.bind(this, identifier));
 
             if(i === 1) {
                 this.tvService.getCharacteristic(this.api.hap.Characteristic.ActiveIdentifier).updateValue(identifier);
@@ -104,6 +121,7 @@ export class HDMISwitchPlatformAccessory
             this.availableServices.push(inputSource);
         }
 
+        // console.dir(this.accessory.context);
         log.info('finished initializing!');
     }
 
@@ -176,8 +194,10 @@ export class HDMISwitchPlatformAccessory
         callback();
     }
 
-    setConfiguredInputSourceName(value: CharacteristicValue, callback: CharacteristicSetCallback) {
-        this.log.info('Set input value', value);
+    setConfiguredInputSourceName(inputIdentifier: string, value: CharacteristicValue, callback: CharacteristicSetCallback) {
+        this.log.info('Set input value', inputIdentifier, value);
+
+        this.accessory.context.inputLabels[inputIdentifier] = value;
 
         callback();
     }

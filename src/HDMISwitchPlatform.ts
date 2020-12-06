@@ -1,14 +1,12 @@
-import {API, DynamicPlatformPlugin} from "homebridge/lib/api";
-import {PlatformAccessory} from "homebridge/lib/platformAccessory";
-import {Logger} from "homebridge/lib/logger";
-import {PlatformConfig} from "homebridge/lib/server";
-import {HDMISwitchAccessory} from "./HDMISwitchAccessory";
-import {HDMIConfig, HDMIPlatformConfig} from "./HDMIConfig";
-import {HDMISwitchPlatformAccessory} from "./HDMISwitchPlatformAccessory";
-import {PLATFORM_NAME, PLUGIN_NAME} from "./settings";
+import {API, DynamicPlatformPlugin} from 'homebridge/lib/api';
+import {PlatformAccessory} from 'homebridge/lib/platformAccessory';
+import {Logger} from 'homebridge/lib/logger';
+import {PlatformConfig} from 'homebridge/lib/server';
+import {HDMIConfig, HDMIPlatformConfig} from './HDMIConfig';
+import {HDMISwitchPlatformAccessory} from './HDMISwitchPlatformAccessory';
+import {PLATFORM_NAME, PLUGIN_NAME} from './settings';
 
-export class HDMISwitchPlatform implements DynamicPlatformPlugin
-{
+export class HDMISwitchPlatform implements DynamicPlatformPlugin {
     public readonly accessories: PlatformAccessory[] = [];
 
     constructor(
@@ -23,21 +21,19 @@ export class HDMISwitchPlatform implements DynamicPlatformPlugin
         });
     }
 
-    configureAccessory(accessory: PlatformAccessory): void
-    {
-        console.log('configureAccessory', accessory.displayName, accessory.UUID);
+    configureAccessory(accessory: PlatformAccessory): void {
+        // console.log('configureAccessory', accessory.displayName, accessory.UUID);
         this.accessories.push(accessory);
     }
 
-    discoverDevices(): void
-    {
+    discoverDevices(): void {
         const c: HDMIPlatformConfig = this.config as HDMIPlatformConfig;
         const devices = c.devices;
 
-        console.log('all accessories: ', this.accessories);
-        this.accessories.forEach((value: PlatformAccessory) => {
-            console.log(value.displayName, value.UUID);
-        });
+        // console.log('all accessories: ', this.accessories);
+        // this.accessories.forEach((value: PlatformAccessory) => {
+        //     console.log(value.displayName, value.UUID);
+        // });
 
         const retiredAccessories = this.accessories.slice();
 
@@ -45,7 +41,7 @@ export class HDMISwitchPlatform implements DynamicPlatformPlugin
 
             const name: string = device.name;
             const path: string = device.path;
-            const uuid = this.api.hap.uuid.generate(name + path);
+            const uuid = this.api.hap.uuid.generate(path);
 
             // see if an accessory with the same uuid has already been registered and restored from
             // the cached devices we stored in the `configureAccessory` method above
@@ -54,19 +50,20 @@ export class HDMISwitchPlatform implements DynamicPlatformPlugin
                 this.log.info('Restoring existing accessory from cache:', existingAccessory.displayName, uuid);
 
                 // link accessory
-                const pa = new HDMISwitchPlatformAccessory(this.log, this.api, device, this, existingAccessory);
+                new HDMISwitchPlatformAccessory(this.log, this.api, device, this, existingAccessory);
                 this.api.updatePlatformAccessories([existingAccessory]);
 
                 // remove from retired devices
                 const retiredIndex = retiredAccessories.indexOf(existingAccessory);
-                if(retiredIndex > -1)
+                if(retiredIndex > -1) {
                     retiredAccessories.splice(retiredIndex, 1);
+                }
             } else {
-                console.log('new accessory', name, uuid);
+                // console.log('new accessory', name, uuid);
                 const accessory = new this.api.platformAccessory(name, uuid);
                 accessory.context.device = device;
 
-                const pa = new HDMISwitchPlatformAccessory(this.log, this.api, device, this, accessory);
+                new HDMISwitchPlatformAccessory(this.log, this.api, device, this, accessory);
                 this.api.publishExternalAccessories(PLUGIN_NAME, [accessory]);
             }
         });
