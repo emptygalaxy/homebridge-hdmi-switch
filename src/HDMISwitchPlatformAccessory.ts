@@ -1,26 +1,24 @@
+import {HDMISwitchPlatform} from "./HDMISwitchPlatform";
 import {
-    AccessoryConfig,
-    AccessoryPlugin,
     API,
     CharacteristicGetCallback,
     CharacteristicSetCallback,
     CharacteristicValue,
     Logging,
     Service,
-    Characteristic,
 } from 'homebridge';
+import {PlatformAccessory} from "homebridge/lib/platformAccessory";
+import {HDMISwitch} from "serial-hdmi-switch";
+import {HDMIConfig} from "./HDMIConfig";
+import {Logger} from "homebridge/lib/logger";
 
-import {HDMISwitch} from 'serial-hdmi-switch';
-import {HDMIConfig} from './HDMIConfig';
-
-export class HDMISwitchAccessory implements AccessoryPlugin {
-    private readonly log: Logging;
-    private readonly api: API;
+export class HDMISwitchPlatformAccessory
+{
     private readonly name: string;
 
     private readonly tvService: Service;
     private readonly informationService: Service;
-    private readonly availableServices: Service[];
+    private readonly availableServices: Service[] = [];
 
     private active = true;
     private activeIdentifier = 1;
@@ -31,24 +29,18 @@ export class HDMISwitchAccessory implements AccessoryPlugin {
     private readonly inputs: number;
     private readonly hdmiSwitch: HDMISwitch;
 
-    /**
-     *
-     * @param {Logging} log
-     * @param {AccessoryConfig} config
-     * @param {API} api
-     */
-    constructor(log: Logging, config: AccessoryConfig, api: API) {
-        this.log = log;
-        this.api = api;
-        this.name = config.name;
-
-        this.log.info('config', config);
-
-        this.availableServices = [];
-
+    public constructor(
+        private readonly log: Logger,
+        private readonly api: API,
+        private readonly config: HDMIConfig,
+        private readonly platform: HDMISwitchPlatform,
+        private readonly accessory: PlatformAccessory,
+    ) {
 
         // handle config
-        const c: HDMIConfig = config as HDMIConfig;
+        const c = config;
+
+        this.name = c.name || 'hdmi';
         this.manufacturer = c.manufacturer || 'Manufacturer';
         this.path = c.path;
         this.baudRate = c.baudRate || 9600;
@@ -59,14 +51,17 @@ export class HDMISwitchAccessory implements AccessoryPlugin {
         // setup internals
         this.hdmiSwitch = new HDMISwitch(this.path);
 
-        // setup services
-        this.informationService = new this.api.hap.Service.AccessoryInformation()
-            .setCharacteristic(this.api.hap.Characteristic.Manufacturer, this.manufacturer)
-            .setCharacteristic(this.api.hap.Characteristic.Model, 'Custom Model');
+        // set category
+        this.accessory.category = this.api.hap.Categories.TV_SET_TOP_BOX;
 
+        // setup services
+        this.informationService = (this.accessory.getService(this.api.hap.Service.AccessoryInformation) || this.accessory.addService(this.api.hap.Service.AccessoryInformation))
+            .setCharacteristic(this.api.hap.Characteristic.Manufacturer, this.manufacturer)
+            .setCharacteristic(this.api.hap.Characteristic.Model, 'Custom Model')
+        ;
         this.availableServices.push(this.informationService);
 
-        this.tvService = new this.api.hap.Service.Television(this.name, 'tvService');
+        this.tvService = (this.accessory.getService(this.api.hap.Service.Television) || this.accessory.addService(this.api.hap.Service.Television));
         this.tvService.getCharacteristic(this.api.hap.Characteristic.Active)
             .on(this.api.hap.CharacteristicEventTypes.GET, this.getActive.bind(this))
             .on(this.api.hap.CharacteristicEventTypes.SET, this.setActive.bind(this));
@@ -85,16 +80,21 @@ export class HDMISwitchAccessory implements AccessoryPlugin {
         this.availableServices.push(this.tvService);
 
         for(let i=1; i<=this.inputs; i++) {
-            const identifier = i;
-            const inputName = 'HDMI ' + i;
-            const inputSource:Service = new this.api.hap.Service.InputSource(inputName, inputName);
+            const identifier: string = i.toString();
+            const inputName: string = 'HDMI ' + i;
+            console.log(this.name, inputName);
+            // const inputSource:Service = new this.api.hap.Service.InputSource(inputName, inputName);
+            const inputSource:Service = this.accessory.getService(identifier) || this.accessory.addService(this.api.hap.Service.InputSource, identifier, inputName);
             inputSource
                 .setCharacteristic(this.api.hap.Characteristic.ConfiguredName, inputName)
-                .setCharacteristic(this.api.hap.Characteristic.InputSourceType, Characteristic.InputSourceType.HDMI)
-                .setCharacteristic(this.api.hap.Characteristic.IsConfigured, Characteristic.IsConfigured.CONFIGURED)
-                .setCharacteristic(this.api.hap.Characteristic.CurrentVisibilityState, Characteristic.CurrentVisibilityState.SHOWN)
+                .setCharacteristic(this.api.hap.Characteristic.InputSourceType, this.api.hap.Characteristic.InputSourceType.HDMI)
+                .setCharacteristic(this.api.hap.Characteristic.IsConfigured, this.api.hap.Characteristic.IsConfigured.CONFIGURED)
+                .setCharacteristic(this.api.hap.Characteristic.CurrentVisibilityState, this.api.hap.Characteristic.CurrentVisibilityState.SHOWN)
                 .setCharacteristic(this.api.hap.Characteristic.Identifier, identifier)
             ;
+
+            inputSource.getCharacteristic(this.api.hap.Characteristic.ConfiguredName)
+                .on(this.api.hap.CharacteristicEventTypes.SET, this.setConfiguredInputSourceName.bind(this));
 
             if(i === 1) {
                 this.tvService.getCharacteristic(this.api.hap.Characteristic.ActiveIdentifier).updateValue(identifier);
@@ -105,14 +105,6 @@ export class HDMISwitchAccessory implements AccessoryPlugin {
         }
 
         log.info('finished initializing!');
-    }
-
-    /**
-     * This method is optional to implement. It is called when HomeKit ask to identify the accessory.
-     * Typical this only ever happens at the pairing process.
-     */
-    identify(): void {
-        this.log('Identify!');
     }
 
     /**
@@ -129,7 +121,7 @@ export class HDMISwitchAccessory implements AccessoryPlugin {
      * @param {CharacteristicGetCallback} callback
      */
     getActive(callback:CharacteristicGetCallback) {
-        this.log('get active');
+        this.log.info('get active');
         callback(null, this.active);
     }
 
@@ -139,7 +131,7 @@ export class HDMISwitchAccessory implements AccessoryPlugin {
      * @param {CharacteristicSetCallback} callback
      */
     setActive(value:CharacteristicValue, callback:CharacteristicSetCallback) {
-        this.log('set active:', value);
+        this.log.info('set active:', value);
         this.active = (value === this.api.hap.Characteristic.Active.ACTIVE);
 
         if(this.active) {
@@ -156,7 +148,7 @@ export class HDMISwitchAccessory implements AccessoryPlugin {
      * @param {CharacteristicGetCallback} callback
      */
     getActiveIdentifier(callback:CharacteristicGetCallback) {
-        this.log('get active identifier:', this.activeIdentifier);
+        this.log.info('get active identifier:', this.activeIdentifier);
         callback(null, this.activeIdentifier);
     }
 
@@ -166,7 +158,7 @@ export class HDMISwitchAccessory implements AccessoryPlugin {
      * @param {CharacteristicSetCallback} callback
      */
     setActiveIdentifier(value:CharacteristicValue, callback:CharacteristicSetCallback) {
-        this.log('set active identifier:', value);
+        this.log.info('set active identifier:', value);
 
         this.activeIdentifier = Number(value);
         this.hdmiSwitch.setInputIndex(this.activeIdentifier - 1);
@@ -180,7 +172,13 @@ export class HDMISwitchAccessory implements AccessoryPlugin {
      * @param {CharacteristicSetCallback} callback
      */
     setRemoteKey(value:CharacteristicValue, callback:CharacteristicSetCallback) {
-        this.log('set remote key:', value);
+        this.log.info('set remote key:', value);
+        callback();
+    }
+
+    setConfiguredInputSourceName(value: CharacteristicValue, callback: CharacteristicSetCallback) {
+        this.log.info('Set input value', value);
+
         callback();
     }
 }
