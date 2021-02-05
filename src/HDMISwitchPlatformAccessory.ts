@@ -88,10 +88,12 @@ export class HDMISwitchPlatformAccessory {
             const identifier: string = i.toString();
             let inputName: string = 'HDMI ' + i;
 
-            if(this.accessory.context.inputLabels[identifier] === undefined) {
-                this.accessory.context.inputLabels[identifier] = inputName;
-            } else {
+            if(this.accessory.context.inputLabels[identifier] !== undefined) {
                 inputName = this.accessory.context.inputLabels[identifier];
+            } else if(config.labels !== undefined && config.labels.length > i) {
+                inputName = config.labels[i];
+            } else {
+                this.accessory.context.inputLabels[identifier] = inputName;
             }
 
 
