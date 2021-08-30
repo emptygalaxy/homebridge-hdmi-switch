@@ -1,6 +1,6 @@
 {
   "name": "homebridge-hdmi-switch",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "HDMI Switch control using RS232",
   "main": "dist/index.js",
   "scripts": {
