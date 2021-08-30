@@ -91,7 +91,7 @@ export class HDMISwitchPlatformAccessory {
             if(this.accessory.context.inputLabels[identifier] !== undefined) {
                 inputName = this.accessory.context.inputLabels[identifier];
             } else if(config.labels !== undefined && config.labels.length > i) {
-                inputName = config.labels[i];
+                inputName = config.labels[i - 1];
             } else {
                 this.accessory.context.inputLabels[identifier] = inputName;
             }
