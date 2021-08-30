@@ -1,5 +1,4 @@
-import {AccessoryConfig} from 'homebridge';
-import {PlatformConfig} from 'homebridge/lib/server';
+import {AccessoryConfig, PlatformConfig} from 'homebridge';
 
 export interface HDMIConfig extends AccessoryConfig{
     manufacturer?: string;

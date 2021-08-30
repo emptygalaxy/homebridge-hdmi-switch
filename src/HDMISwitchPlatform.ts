@@ -1,7 +1,4 @@
-import {API, APIEvent, DynamicPlatformPlugin} from 'homebridge/lib/api';
-import {PlatformAccessory} from 'homebridge/lib/platformAccessory';
-import {Logger} from 'homebridge/lib/logger';
-import {PlatformConfig} from 'homebridge/lib/server';
+import {API, APIEvent, DynamicPlatformPlugin, PlatformConfig, Logger, PlatformAccessory} from 'homebridge';
 import {HDMIConfig, HDMIPlatformConfig} from './HDMIConfig';
 import {HDMISwitchPlatformAccessory} from './HDMISwitchPlatformAccessory';
 import {PLATFORM_NAME, PLUGIN_NAME} from './settings';
