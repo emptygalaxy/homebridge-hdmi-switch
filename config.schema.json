@@ -7,45 +7,79 @@
     "properties": {
       "devices": {
         "title": "Devices",
-        "type": "object",
-        "properties": {
-          "name": {
-            "title": "Name",
-            "type": "string",
-            "required": true
-          },
-          "id": {
-            "title": "Identifier",
-            "type": "string",
-            "required": false
-          },
-          "manufacturer": {
-            "title": "Manufacturer",
-            "type": "string",
-            "required": false
-          },
-          "path": {
-            "title": "Port",
-            "type": "string",
-            "required": true
-          },
-          "baudRate": {
-            "title": "Baud Rate",
-            "type": "integer",
-            "required": false
-          },
-          "inputs": {
-            "title": "Number of inputs",
-            "type": "integer",
-            "required": false
-          },
-          "labels": {
-            "title": "Input labels",
-            "type": "array",
-            "required": false,
-            "items": {
-              "title": "Label",
-              "type": "string"
+        "type": "array",
+        "items": {
+          "title": "Device",
+          "type": "object",
+          "properties": {
+            "name": {
+              "title": "Name",
+              "type": "string",
+              "required": true
+            },
+            "id": {
+              "title": "Identifier",
+              "type": "string",
+              "required": false
+            },
+            "manufacturer": {
+              "title": "Manufacturer",
+              "type": "string",
+              "required": false
+            },
+            "path": {
+              "title": "Port",
+              "type": "string",
+              "required": true
+            },
+            "baudRate": {
+              "title": "Baud Rate",
+              "type": "integer",
+              "required": false
+            },
+            "inputs": {
+              "title": "Number of Inputs",
+              "type": "integer",
+              "required": false
+            },
+            "powerOnCommand": {
+              "title": "Power On Command",
+              "type": "string",
+              "required": false,
+              "description": "Provide the command for powering on the switcher."
+            },
+            "powerOffCommand": {
+              "title": "Power Off Command",
+              "type": "string",
+              "required": false,
+              "description": "Provide the command for powering off the switcher."
+            },
+            "outputSelectCommand": {
+              "title": "Output Select Command",
+              "type": "string",
+              "required": false,
+              "description": "Provide the command for switching inputs on the switcher. Use '%d' where the number would go. For example if your documentation asks for 'OUT FR 1' for port 1, use 'OUT FR %d'"
+            },
+            "zeroIndexed": {
+              "title": "Zero Indexed",
+              "type": "boolean",
+              "required": false,
+              "description": "Check this if your RS232 interface asks for ports 1 off from what they are labelled. For example if requesting HDMI 1 requires asking for Port 0."
+            },
+            "commandEnd": {
+              "title": "Command Suffix",
+              "type": "string",
+              "required": false,
+              "description": "This is the suffix for each command. Typically this would be a '\r' or similar to tell the switcher to interpret the command."
+            },
+            "labels": {
+              "title": "Input labels",
+              "type": "array",
+              "required": false,
+              "items": {
+                "title": "Label",
+                "type": "string"
+              }
             }
           }
         }
