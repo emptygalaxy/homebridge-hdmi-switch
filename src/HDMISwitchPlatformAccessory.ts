@@ -6,7 +6,7 @@ import {
     CharacteristicValue,
     Logger,
     PlatformAccessory,
-    Service
+    Service,
 } from 'homebridge';
 import {HDMISwitch} from 'serial-hdmi-switch';
 import {HDMIConfig} from './HDMIConfig';

@@ -5,9 +5,11 @@
   "main": "dist/index.js",
   "scripts": {
     "lint": "eslint src/**.ts",
+    "fix": "eslint --fix src/**.ts",
     "watch": "npm run build && npm link && nodemon",
-    "build": "rimraf ./dist && tsc",
-    "prepublishOnly": "npm run lint && npm run build",
+    "clean": "rimraf ./dist",
+    "build": "npm run clean && tsc",
+    "prepublishOnly": "npm run lint && npm audit && npm run build",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "engines": {
@@ -30,7 +32,7 @@
     "typescript": "^3.9.10"
   },
   "dependencies": {
-    "serial-hdmi-switch": "^1.0.2"
+    "serial-hdmi-switch": "^1.0.6"
   },
   "repository": {
     "type": "git",
