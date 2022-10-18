@@ -6,6 +6,11 @@ export interface HDMIConfig extends AccessoryConfig{
     id?: string;
     path: string;
     baudRate?: number;
+    zeroIndexed?: boolean;
+    powerOnCommand?: string;
+    powerOffCommand?: string;
+    outputSelectCommand?: string;
+    commandEnd?: string;
     inputs?: number;
     labels?: string[];
 }

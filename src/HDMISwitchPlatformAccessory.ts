@@ -24,6 +24,11 @@ export class HDMISwitchPlatformAccessory {
     private readonly manufacturer: string;
     private readonly path: string;
     private readonly baudRate: number;
+    private readonly zeroIndexed: boolean;
+    private readonly powerOnCommand: string;
+    private readonly powerOffCommand: string;
+    private readonly outputSelectCommand: string;
+    private readonly commandEnd: string;
     private readonly inputs: number;
     private readonly hdmiSwitch: HDMISwitch;
 
@@ -43,6 +48,11 @@ export class HDMISwitchPlatformAccessory {
         this.path = c.path;
         this.baudRate = c.baudRate || 9600;
         this.inputs = c.inputs || 5;
+        this.zeroIndexed = typeof c.zeroIndexed === 'undefined' ? false : c.zeroIndexed;
+        this.powerOnCommand = c.powerOnCommand || 'poweron';
+        this.powerOffCommand = c.powerOffCommand || 'poweroff';
+        this.outputSelectCommand = c.outputSelectCommand || 'port%d';
+        this.commandEnd = c.commandEnd || '\r';
 
         this.log.info('connect', this.path);
 
@@ -51,7 +61,20 @@ export class HDMISwitchPlatformAccessory {
         const Characteristic = this.api.hap.Characteristic;
 
         // setup internals
-        this.hdmiSwitch = new HDMISwitch(this.path);
+        this.hdmiSwitch = new HDMISwitch(
+            this.path,
+            {
+                Commands: {
+                    PowerOn: this.powerOnCommand,
+                    PowerOff: this.powerOffCommand,
+                    OutputSelect: this.outputSelectCommand,
+                },
+                CommandEnd: this.commandEnd,
+                ZeroIndexed: this.zeroIndexed,
+                MaxInputs: this.inputs,
+                Baud: this.baudRate,
+            }
+        );
 
         // set category
         this.accessory.category = this.api.hap.Categories.TV_SET_TOP_BOX;
@@ -94,7 +117,7 @@ export class HDMISwitchPlatformAccessory {
 
             if (this.accessory.context.inputLabels[identifier] !== undefined) {
                 inputName = this.accessory.context.inputLabels[identifier];
-            } else if (config.labels !== undefined && config.labels.length > i) {
+            } else if (config.labels !== undefined && config.labels.length >= i) {
                 inputName = config.labels[i - 1];
             } else {
                 this.accessory.context.inputLabels[identifier] = inputName;
