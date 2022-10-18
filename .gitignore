@@ -90,5 +90,5 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 
-# Build Files
-dist
+# Development Homebridge
+.homebridge
